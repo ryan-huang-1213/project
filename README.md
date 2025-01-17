@@ -20,5 +20,13 @@ pip install -r requirements.txt
 
 run 
 ```
+source venv/bin/activate
 python3 ui.py 
+```
+
+## 注意事項 
+如果有額外新增套件，請記得更新 requirements 
+```
+source venv/bin/activate
+pip freeze > requirements.txt
 ```
