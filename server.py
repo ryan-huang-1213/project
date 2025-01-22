@@ -26,15 +26,20 @@ def read_file():
 @app.route('/run-file')
 def run_file():
     file = request.args.get('file')
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
-    output_path = os.path.join(OUTPUT_DIR, 'output.png')
+    file_name = os.path.splitext(file)[0]
+    output_dir = os.path.join(OUTPUT_DIR, file_name)
+    os.makedirs(output_dir, exist_ok=True)
+    output_path = os.path.join(output_dir, 'output.png')
+    file_path = os.path.join(DRAW_DIR, file)
+    print(f"Running file: {file_path}")
+    print(f"Output path: {output_path}")
     # 使用 Manim 渲染並生成圖片
-    result = subprocess.run(['manim', '-ql', os.path.join(DRAW_DIR, file), '-o', 'output'], capture_output=True, text=True)
+    result = subprocess.run(['manim', '-ql', file_path, '-o', 'output', '-p', output_dir], capture_output=True, text=True)
     print(result.stdout)
     print(result.stderr)
     # 確保圖片文件存在
     if os.path.exists(output_path):
-        return jsonify({'imagePath': f'/media/images/output.png'})
+        return jsonify({'imagePath': f'/media/images/{file_name}/output.png'})
     else:
         return jsonify({'error': 'Rendering failed', 'details': result.stderr}), 500
 
