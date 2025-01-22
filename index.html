@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manim Runner</title>
+    <style>
+        body {
+            display: flex;
+        }
+        .column {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="column" id="file-list">
+        <h2>Files</h2>
+        <ul id="files"></ul>
+    </div>
+    <div class="column" id="code-display">
+        <h2>Code</h2>
+        <pre id="code"></pre>
+    </div>
+    <div class="column" id="output-display">
+        <h2>Output</h2>
+        <img id="output-image" src="" alt="Output Image">
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>
