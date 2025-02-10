@@ -1,2 +1,26 @@
 /venv/
 ./env
+/media/
+__pycache__/*
+
+# Python bytecode files
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment directories
+.venv/
+env/
+
+# Editor directories and files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Log files
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
