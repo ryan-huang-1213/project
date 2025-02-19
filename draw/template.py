@@ -31,15 +31,15 @@ class DrawTriangle(Scene):
         point_b = triangle.get_vertices()[1]
         point_c = triangle.get_vertices()[2]
 
-        # 標註頂點座標
-        label_a = Text("A (0, 0)").next_to(point_a, DOWN + LEFT)
-        label_b = Text("B (3, 0)").next_to(point_b, DOWN + RIGHT)
-        label_c = Text("C (0, 4)").next_to(point_c, UP)
+        # 標註頂點 # 這裡先不寫座標
+        label_a = Text("A").next_to(point_a, DOWN + LEFT)
+        label_b = Text("B").next_to(point_b, DOWN + RIGHT)
+        label_c = Text("C").next_to(point_c, UP)
 
         # 添加到場景
         self.add(triangle, label_a, label_b, label_c)
 
-        # 畫角度標註
+        # 畫角度標註 # 先不寫角度標住
         self.drawAngle(point_a, point_b, point_c, is_right_angle=True)
         self.drawAngle(point_b, point_c, point_a)
         self.drawAngle(point_c, point_a, point_b)
@@ -48,8 +48,8 @@ class DrawTriangle(Scene):
         incenter = self.get_incenter(point_a, point_b, point_c)
         inradius = self.get_inradius(point_a, point_b, point_c, incenter)
 
-        # 畫內接圓並移動到原點
-        incircle = Circle(radius=inradius, color=RED).move_to(incenter - triangle.get_center())
+        # 畫內接圓並移動到內心位置
+        incircle = Circle(radius=inradius, color=RED).move_to(incenter)
         self.add(incircle)
 
         # 使用 recognize.py 中的功能進行頂點辨識

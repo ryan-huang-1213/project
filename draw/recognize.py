@@ -3,6 +3,7 @@ from manim import *
 import cv2
 import numpy as np
 import os
+import pytesseract
 
 # 使用 Manim 找到頂點座標
 class FindVertices(Scene):
@@ -59,6 +60,7 @@ def annotate_and_save_vertices(image, contours, output_path):
     :param image: 原始圖像
     :param contours: 輪廓列表
     :param output_path: 保存圖像的路徑
+    :param text_boxes: 文字框的列表，每個元素為 (x, y, w, h)
     """
     annotated_image = np.zeros_like(image)  # 創建一個黑色背景的圖像
     
@@ -67,11 +69,44 @@ def annotate_and_save_vertices(image, contours, output_path):
         approx = cv2.approxPolyDP(contour, epsilon, True)
         if len(approx) >= 3:  # 只關心至少為多邊形的輪廓
             for vertex in approx:
+                # 檢查頂點是否在文字框內
+                # if any(x <= vertex[0][0] <= x + w and y <= vertex[0][1] <= y + h for (x, y, w, h) in text_boxes):
+                #     continue
                 cv2.circle(annotated_image, tuple(vertex[0]), 2, (0, 255, 255), -1)  # 標註頂點，黃色點
     
     # 保存標註後的圖像
     cv2.imwrite(output_path, annotated_image)
     print(f"標註結果已保存到 {output_path}")
+
+def extract_text_boxes(image):
+    """
+    使用 OCR 提取圖像中的文字框。
+    
+    :param image: 原始圖像
+    :return: 文字框的列表，每個元素為 (x, y, w, h)
+    """
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    d = pytesseract.image_to_data(gray, output_type=pytesseract.Output.DICT)
+    text_boxes = []
+    n_boxes = len(d['level'])
+    for i in range(n_boxes):
+        (x, y, w, h) = (d['left'][i], d['top'][i], d['width'][i], d['height'][i])
+        text_boxes.append((x, y, w, h))
+        # 列印辨識到的文字及其座標
+        print(f"文字: {d['text'][i]}, 座標: ({x}, {y}, {w}, {h})")
+    return text_boxes
+
+def remove_text_boxes(image, text_boxes):
+    """
+    將圖像中的文字框部分填充為黑色。
+    
+    :param image: 原始圖像
+    :param text_boxes: 文字框的列表，每個元素為 (x, y, w, h)
+    :return: 去除文字框後的圖像
+    """
+    for (x, y, w, h) in text_boxes:
+        cv2.rectangle(image, (x, y), (x + w, y + h), (0, 0, 0), -1)
+    return image
 
 # 使用 OpenCV 找到頂點座標
 def find_vertices_with_opencv(image_path):
@@ -83,6 +118,12 @@ def find_vertices_with_opencv(image_path):
     if image is None:
         print(f"無法在 {image_path} 找到圖像。")
         return
+
+    # 提取文字框
+    # text_boxes = extract_text_boxes(image)
+
+    # 去除文字框部分
+    # image = remove_text_boxes(image, text_boxes)
 
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     edges = cv2.Canny(gray, 50, 150, apertureSize=3)
@@ -96,13 +137,13 @@ def find_vertices_with_opencv(image_path):
     
     for i, contour in enumerate(contours):
         # 過濾掉小的輪廓
-        if cv2.contourArea(contour) < 100:  # 調整此閾值以適應您的需求
+        if cv2.contourArea(contour) < 900:  # 目前先用此方法來過濾小的輪廓 ( 角度標註引起的問題 )
             continue
         
-        epsilon = 0.02 * cv2.arcLength(contour, True)
+        epsilon = 0.005 * cv2.arcLength(contour, True)
         approx = cv2.approxPolyDP(contour, epsilon, True)
-        if len(approx) >= 3:  # 只關心至少為多邊形的輪廓
-            print(f"OpenCV 找到形狀 {i}，頂點數：{len(approx)}")
+        if len(approx) > 0:  # 只關心頂點數在 3 到 10 之間的多邊形輪廓
+            print(f"OpenCV 找到形狀 {i}，頂點數：{len(approx)}，面積：{cv2.contourArea(contour)}")
             for j, vertex in enumerate(approx):
                 print(f"  Vertex {j}: {vertex[0]}")
     
