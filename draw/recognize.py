@@ -1,29 +1,47 @@
-# recognize.py
 from manim import *
 import cv2
 import numpy as np
 import os
 import pytesseract
+import shutil
 
 # 使用 Manim 找到頂點座標
 class FindVertices(Scene):
-    def __init__(self, shapes=None, **kwargs):
+    def __init__(self, shapes=None, output_dir=".", image_path=None, **kwargs):
         """
         shapes: 一個包含 Manim mobject 的列表，
                 每個 mobject 都應支援 get_vertices() 方法。
                 若未提供則預設為 [Triangle()]。
+        output_dir: 圖片儲存的目錄
+        image_path: 圖片的路徑，用於保存圖像
         """
         super().__init__(**kwargs)
         self.shapes = shapes if shapes is not None else [Triangle()]
+        self.output_dir = output_dir
+        self.image_path = image_path
 
     def construct(self):
         for shape in self.shapes:
-            # 將形狀加入場景，方便在影片中看到效果
             self.add(shape)
             vertices = shape.get_vertices()
-            print(f"Manim vertices for {type(shape).__name__}:")
-            for i, vertex in enumerate(vertices):
-                print(f"  Vertex {i}: {vertex}")
+            print(f"Shape: {type(shape).__name__}")
+            for vertex in vertices:
+                print(f"  Vertex: {vertex}")  # 列印出頂點的座標
+                dot = Dot(point=vertex, color=RED,radius=50)
+                self.add(dot)
+        self.save_image()
+
+    def save_image(self):
+        output_path = os.path.join(self.output_dir, "output_manim.png")
+        self.renderer.file_writer.finish()
+        image_file_path = self.renderer.file_writer.image_file_path
+
+        if os.path.exists(image_file_path):
+            shutil.move(image_file_path, output_path)
+            print(f"Image saved to {output_path}")
+        else:
+            print(f"File not found: {image_file_path}")
+
 
 def get_scene_vertices(scene):
     """
@@ -60,7 +78,6 @@ def annotate_and_save_vertices(image, contours, output_path):
     :param image: 原始圖像
     :param contours: 輪廓列表
     :param output_path: 保存圖像的路徑
-    :param text_boxes: 文字框的列表，每個元素為 (x, y, w, h)
     """
     annotated_image = np.zeros_like(image)  # 創建一個黑色背景的圖像
     
@@ -69,9 +86,6 @@ def annotate_and_save_vertices(image, contours, output_path):
         approx = cv2.approxPolyDP(contour, epsilon, True)
         if len(approx) >= 3:  # 只關心至少為多邊形的輪廓
             for vertex in approx:
-                # 檢查頂點是否在文字框內
-                # if any(x <= vertex[0][0] <= x + w and y <= vertex[0][1] <= y + h for (x, y, w, h) in text_boxes):
-                #     continue
                 cv2.circle(annotated_image, tuple(vertex[0]), 2, (0, 255, 255), -1)  # 標註頂點，黃色點
     
     # 保存標註後的圖像
@@ -92,8 +106,6 @@ def extract_text_boxes(image):
     for i in range(n_boxes):
         (x, y, w, h) = (d['left'][i], d['top'][i], d['width'][i], d['height'][i])
         text_boxes.append((x, y, w, h))
-        # 列印辨識到的文字及其座標
-        print(f"文字: {d['text'][i]}, 座標: ({x}, {y}, {w}, {h})")
     return text_boxes
 
 def remove_text_boxes(image, text_boxes):
@@ -119,12 +131,6 @@ def find_vertices_with_opencv(image_path):
         print(f"無法在 {image_path} 找到圖像。")
         return
 
-    # 提取文字框
-    # text_boxes = extract_text_boxes(image)
-
-    # 去除文字框部分
-    # image = remove_text_boxes(image, text_boxes)
-
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     edges = cv2.Canny(gray, 50, 150, apertureSize=3)
     
@@ -148,5 +154,5 @@ def find_vertices_with_opencv(image_path):
                 print(f"  Vertex {j}: {vertex[0]}")
     
     # 標註頂點並保存圖像
-    result_path = os.path.join(os.path.dirname(image_path), "result_opencv.png")
+    result_path = os.path.join(os.path.dirname(image_path), f"output_opencv.png")
     annotate_and_save_vertices(image, contours, result_path)
