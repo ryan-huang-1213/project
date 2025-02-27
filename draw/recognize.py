@@ -27,7 +27,7 @@ class FindVertices(Scene):
             print(f"Shape: {type(shape).__name__}")
             for vertex in vertices:
                 print(f"  Vertex: {vertex}")  # 列印出頂點的座標
-                dot = Dot(point=vertex, color=RED,radius=50)
+                dot = Dot(point=vertex, color=RED, radius=0.1)  # 增加點的大小
                 self.add(dot)
         self.save_image()
 
@@ -41,7 +41,6 @@ class FindVertices(Scene):
             print(f"Image saved to {output_path}")
         else:
             print(f"File not found: {image_file_path}")
-
 
 def get_scene_vertices(scene):
     """
