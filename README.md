@@ -30,3 +30,10 @@ python3 ui.py
 source venv/bin/activate
 pip freeze > requirements.txt
 ```
+
+conda
+```
+conda create --name myenv python=3.8
+conda activate myenv
+pip install -r requirements.txt
+```
