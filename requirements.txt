@@ -16,6 +16,7 @@ antlr4-python3-runtime==4.9.3
 anyio==3.7.1
 appdirs==1.4.4
 asteroid-filterbanks==0.4.0
+asttokens==3.0.0
 astunparse==1.6.3
 async-timeout==5.0.1
 attrs==24.2.0
@@ -42,6 +43,7 @@ cloup==3.0.5
 colorama==0.4.4
 coloredlogs==15.0.1
 colorlog==6.9.0
+comm==0.2.2
 command-not-found==0.3
 ConfigArgParse==1.7
 contourpy==1.3.0
@@ -53,6 +55,7 @@ cycler==0.12.1
 Cython==3.0.11
 dadaptation==3.2
 dbus-python==1.2.18
+debugpy==1.8.12
 decorator==5.1.1
 decord==0.6.0
 deepdanbooru==1.0.3
@@ -79,6 +82,7 @@ embreex==2.17.7.post5
 entrypoints==0.4
 espnet-tts-frontend==0.0.3
 exceptiongroup==1.2.2
+executing==2.2.0
 facexlib==0.3.0
 fairscale==0.4.13
 fast_bss_eval==0.1.3
@@ -131,12 +135,15 @@ intel-cmplr-lib-ur==2025.0.0
 intel-openmp==2025.0.0
 invisible-watermark==0.2.0
 iopath==0.1.9
+ipykernel==6.29.5
+ipython==8.32.0
 isosurfaces==0.1.2
 itsdangerous==2.2.0
 jaconv==0.4.0
 jamo==0.4.1
 jax==0.4.36
 jaxlib==0.4.36
+jedi==0.19.2
 jeepney==0.7.1
 Jinja2==3.1.4
 jiter==0.8.2
@@ -145,6 +152,8 @@ joblib==1.4.2
 jsonmerge==1.8.0
 jsonschema==4.23.0
 jsonschema-specifications==2024.10.1
+jupyter_client==8.6.3
+jupyter_core==5.7.2
 kaldiio==2.18.0
 keras==3.7.0
 keyring==23.5.0
@@ -176,6 +185,7 @@ markdown-it-py==3.0.0
 markdown2==2.5.1
 MarkupSafe==2.1.5
 matplotlib==3.9.2
+matplotlib-inline==0.1.7
 mdurl==0.1.2
 mediapipe==0.10.15
 mkl==2025.0.0
@@ -191,6 +201,7 @@ multidict==6.1.0
 multiprocess==0.70.17
 namex==0.0.8
 narwhals==1.13.2
+nest-asyncio==1.6.0
 netifaces==0.11.0
 networkx==3.4.2
 nltk==3.9.1
@@ -223,9 +234,11 @@ optree==0.13.1
 orjson==3.10.11
 packaging==24.1
 pandas==2.2.3
+parso==0.8.4
 pathos==0.3.3
 pathtools==0.1.2
 peft==0.13.2
+pexpect==4.9.0
 piexif==1.1.3
 pillow==11.1.0
 pillow-avif-plugin==1.4.3
@@ -236,9 +249,12 @@ pox==0.3.5
 ppft==1.7.6.9
 prettytable==3.12.0
 prodigyopt==1.0
+prompt_toolkit==3.0.50
 propcache==0.2.0
 protobuf==3.20.0
 psutil==5.9.5
+ptyprocess==0.7.0
+pure_eval==0.2.3
 py-cpuinfo==9.0.0
 pyasn1==0.6.1
 pyasn1_modules==0.4.1
@@ -269,6 +285,7 @@ pytz==2024.2
 PyWavelets==1.8.0
 pyworld==0.3.4
 PyYAML==5.4.1
+pyzmq==26.2.1
 qwen-vl-utils==0.0.8
 rarfile==4.2
 referencing==0.35.1
@@ -311,6 +328,7 @@ soupsieve==2.6
 spandrel==0.3.4
 spandrel_extra_arches==0.1.1
 srt==3.5.3
+stack-data==0.6.3
 starlette==0.26.1
 svg.path==6.3
 svgelements==1.9.6
@@ -346,7 +364,9 @@ torchdiffeq==0.2.3
 torchmetrics==1.6.0
 torchsde==0.2.6
 torchvision==0.16.2
+tornado==6.4.2
 tqdm==4.66.5
+traitlets==5.14.3
 trampoline==0.1.2
 transformers @ git+https://github.com/huggingface/transformers@8c1b5d37827a6691fef4b2d926f2d04fb6f5a9e3
 transformers-stream-generator==0.0.4
