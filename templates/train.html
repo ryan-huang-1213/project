@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>圖片標註工具</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        canvas { border: 1px solid black; }
+        table, th, td { border: 1px solid black; border-collapse: collapse; padding: 5px; }
+    </style>
+</head>
+<body>
+    <button onclick="window.location.href='/'">回到 manim runner</button>
+    <h1>圖片標註工具</h1>
+    
+    <label for="imageSelector">選擇圖片：</label>
+    <select id="imageSelector">
+        {% for image in images %}
+            <option value="{{ image }}">{{ image }}</option>
+        {% endfor %}
+    </select>
+    
+    <br><br>
+    
+    <input type="checkbox" id="showOriginal" checked> 顯示原始圖片
+    <input type="checkbox" id="showAnnotations" checked> 顯示標註圖層
+    
+    <br><br>
+    
+    <canvas id="imageCanvas"></canvas>
+    
+    <h2>標註座標</h2>
+    <table>
+        <thead>
+            <tr><th>X</th><th>Y</th><th>操作</th></tr>
+        </thead>
+        <tbody id="coordinatesTable"></tbody>
+    </table>
+
+    <script>
+        const imageSelector = document.getElementById("imageSelector");
+        const canvas = document.getElementById("imageCanvas");
+        const ctx = canvas.getContext("2d");
+        const showOriginal = document.getElementById("showOriginal");
+        const showAnnotations = document.getElementById("showAnnotations");
+        const coordinatesTable = document.getElementById("coordinatesTable");
+
+        let selectedImage = "";
+        let points = [];
+
+        function loadImage(filename) {
+            selectedImage = filename;
+            points = [];
+            const img = new Image();
+            img.src = `/images/${filename}`;
+            img.onload = () => {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                drawCanvas();
+            };
+
+            fetch(`/annotations/${filename}`)
+                .then(res => res.json())
+                .then(data => {
+                    points = data.points || [];
+                    drawCanvas();
+                });
+        }
+
+        function drawCanvas() {
+            const img = new Image();
+            img.src = `/images/${selectedImage}`;
+            img.onload = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                if (showOriginal.checked) ctx.drawImage(img, 0, 0);
+                if (showAnnotations.checked) {
+                    const overlay = new Image();
+                    //overlay.src = `/result/${selectedImage}.png`;
+                    overlay.src = `/result/${selectedImage}.png?timestamp=${new Date().getTime()}`;
+                    overlay.onload = () => ctx.drawImage(overlay, 0, 0);
+                }
+                updateTable();
+            };
+        }
+
+        canvas.addEventListener("click", (event) => {
+            if (!showAnnotations.checked) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            points.push([Math.round(x), Math.round(y)]);
+            saveAnnotation();
+        });
+
+        canvas.addEventListener("contextmenu", (event) => {
+            event.preventDefault();
+            if (!showAnnotations.checked) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            points = points.filter(([px, py]) => Math.hypot(px - x, py - y) > 5);
+            saveAnnotation();
+        });
+
+
+
+        function saveAnnotation() {
+            fetch("/save_annotation", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ filename: selectedImage, points })
+            }).then(() => {
+                setTimeout(drawCanvas, 300); // 加入延遲確保 Flask 端已更新圖片
+            });
+        }
+
+
+        function updateTable() {
+            coordinatesTable.innerHTML = "";
+            points.forEach(([x, y], index) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `<td>${x}</td><td>${y}</td><td><button onclick="removePoint(${index})">刪除</button></td>`;
+                coordinatesTable.appendChild(row);
+            });
+        }
+
+        function removePoint(index) {
+            points.splice(index, 1);
+            saveAnnotation();
+        }
+
+        imageSelector.addEventListener("change", () => loadImage(imageSelector.value));
+        showOriginal.addEventListener("change", drawCanvas);
+        showAnnotations.addEventListener("change", drawCanvas);
+
+        // 加载页面时自动加载第一个图片
+        if (imageSelector.options.length > 0) {
+            loadImage(imageSelector.options[0].value);
+        }
+    </script>
+
+</body>
+</html>
